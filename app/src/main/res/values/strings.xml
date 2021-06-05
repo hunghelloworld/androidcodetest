@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MyAndroidCodeTest</string>
+    <string name="BASE_URL">api.openweathermap.org</string>
 </resources>

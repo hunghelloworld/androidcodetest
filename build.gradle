@@ -19,6 +19,13 @@ allprojects {
         google()
         jcenter()
     }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+        kotlinOptions {
+            freeCompilerArgs = freeCompilerArgs + "-Xallow-result-return-type"
+        }
+    }
+
 }
 
 task clean(type: Delete) {
