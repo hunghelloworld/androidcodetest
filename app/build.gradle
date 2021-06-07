@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -76,11 +77,13 @@ dependencies {
     implementation 'org.koin:koin-android:2.0.0-rc-2'
     implementation 'org.koin:koin-android-viewmodel:2.0.0-rc-2'
     implementation 'org.koin:koin-androidx-scope:2.0.0-rc-2'
+    implementation "androidx.fragment:fragment-ktx:1.2.5"
 
     // for room
+    implementation 'androidx.room:room-ktx:2.2.1'
     implementation 'androidx.room:room-runtime:2.2.5'
     annotationProcessor 'androidx.room:room-compiler:2.2.5'
-    implementation 'androidx.room:room-compiler:2.2.5'
+    kapt 'androidx.room:room-compiler:2.2.5'
 
     // Coroutines for asynchronous calls (and Deferred’s adapter)
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1'

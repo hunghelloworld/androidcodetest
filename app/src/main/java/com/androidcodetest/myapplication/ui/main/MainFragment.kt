@@ -1,12 +1,17 @@
 package com.androidcodetest.myapplication.ui.main
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.androidcodetest.myapplication.R
+import com.androidcodetest.myapplication.databinding.MainFragmentBinding
+import org.koin.android.viewmodel.ext.android.sharedViewModel
+
 
 class MainFragment : Fragment() {
 
@@ -14,16 +19,21 @@ class MainFragment : Fragment() {
         fun newInstance() = MainFragment()
     }
 
-    private lateinit var viewModel: MainViewModel
+     val viewModel: MainViewModel by    sharedViewModel<MainViewModel>()
 
+    lateinit var viewDataBinding:MainFragmentBinding
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.main_fragment, container, false)
+         viewDataBinding = DataBindingUtil.inflate<com.androidcodetest.myapplication.databinding.MainFragmentBinding>(
+            inflater, R.layout.main_fragment, container, false
+        )
+
+        viewDataBinding.viewmodel = viewModel
+        return viewDataBinding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         // TODO: Use the ViewModel
     }
 

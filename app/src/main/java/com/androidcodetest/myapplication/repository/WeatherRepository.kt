@@ -1,6 +1,7 @@
 package com.androidcodetest.myapplication.repository
 
 import android.content.Context
+import android.util.Log
 import com.androidcodetest.myapplication.R
 import com.androidcodetest.myapplication.data.WeatherByCity
 import com.androidcodetest.myapplication.data.respond.GetWeatherByCityOrZipRespond
@@ -22,12 +23,17 @@ interface IWeatherRepository {
     suspend fun updateWeatherByCity(city: String)
     suspend fun updateLastTouchByCity(city: String)
     suspend fun updateLastTouchByZipCode(zip: String)
+    suspend fun updateWeatherByZipCode(zip: String)
 }
 
 
-class Weatherepository(var api: WeatherRemoteDataSourceApi, var context: Context, var dao: WeatherDao) : IWeatherRepository {
+class WeatherRepository(
+    var api: WeatherRemoteDataSourceApi,
+    var context: Context,
+    var dao: WeatherDao
+) : IWeatherRepository {
     override suspend fun getWeathersOrderInLastTouch(): Flow<Result<GetWeathersOrderInRecentRespond>>? {
-        var weathersListener =dao.getAllByLastSearchFlow()
+        var weathersListener = dao.getAllByLastSearchFlow()
 
         return weathersListener?.map {
             var getWeathersOrderInRecentRespond = GetWeathersOrderInRecentRespond()
@@ -39,7 +45,7 @@ class Weatherepository(var api: WeatherRemoteDataSourceApi, var context: Context
 
     override suspend fun getWeatherByCity(city: String): Flow<Result<GetWeatherByCityOrZipRespond>>? {
         updateWeatherByCity(city)
-        var weatherListener =  dao.getByCityNameFlow("London")
+        var weatherListener = dao.getByCityNameFlow("London")
 
         return weatherListener?.map {
             var getWeatherByCityOrZipRespond = GetWeatherByCityOrZipRespond()
@@ -51,7 +57,7 @@ class Weatherepository(var api: WeatherRemoteDataSourceApi, var context: Context
 
     override suspend fun getWeatherByZip(zipCode: String): Flow<Result<GetWeatherByCityOrZipRespond>>? {
         updateWeatherByZipCode(zipCode)
-        var weatherListener =  dao.getByZipCodeFlow(zipCode)
+        var weatherListener = dao.getByZipCodeFlow(zipCode)
 
         return weatherListener?.map {
             var getWeatherByCityOrZipRespond = GetWeatherByCityOrZipRespond()
@@ -62,24 +68,30 @@ class Weatherepository(var api: WeatherRemoteDataSourceApi, var context: Context
     }
 
     override suspend fun updateWeatherByCity(city: String) {
-      var  weatherByCity = api.getWeatherByCity(city).body()
+        var weatherByCity = api.getWeatherByCity(city).body()
         if (weatherByCity != null) {
             dao.insert(weatherByCity)
         }
     }
 
     override suspend fun updateLastTouchByCity(city: String) {
-       var w =  dao.getByCityName(city)
+        var wAny = dao.getByCityName(city)
+        if (wAny.size == 0) return
+        var w = wAny.get(0)
+        Log.d("updateLastTouchByCity", " w._id = " + w._id)
         dao.updateTimeByID(w._id, Calendar.getInstance().getTime().toString())
     }
 
     override suspend fun updateLastTouchByZipCode(zip: String) {
-        var w =  dao.getByZipCode(zip)
+        var wAny = dao.getByZipCode(zip)
+        if (wAny.size == 0) return
+        var w = wAny.get(0)
+        Log.d("updateLastTouchByZip", " w._id = " + w._id)
         dao.updateTimeByID(w._id, Calendar.getInstance().getTime().toString())
     }
 
-    suspend fun updateWeatherByZipCode(city: String) {
-        var  weatherByCity = api.getWeatherByCity(city).body()
+    override suspend fun updateWeatherByZipCode(city: String) {
+        var weatherByCity = api.getWeatherByCity(city).body()
         if (weatherByCity != null) {
             dao.insert(weatherByCity)
         }
@@ -91,7 +103,7 @@ class mockWeatherRepository(var context: Context, var dao: WeatherDao) : IWeathe
     override suspend fun getWeathersOrderInLastTouch(): Flow<Result<GetWeathersOrderInRecentRespond>>? {
         updateWeatherByCity("city")
 
-        var weathersListener =dao.getAllByLastSearchFlow()
+        var weathersListener = dao.getAllByLastSearchFlow()
 
         return weathersListener?.map {
             var getWeathersOrderInRecentRespond = GetWeathersOrderInRecentRespond()
@@ -103,8 +115,8 @@ class mockWeatherRepository(var context: Context, var dao: WeatherDao) : IWeathe
     }
 
     override suspend fun getWeatherByCity(city: String): Flow<Result<GetWeatherByCityOrZipRespond>>? {
-           updateWeatherByCity("city")
-        var londonWeatherListener =  dao.getByCityNameFlow("London")
+        updateWeatherByCity("city")
+        var londonWeatherListener = dao.getByCityNameFlow("London")
 
         return londonWeatherListener?.map {
             var getWeatherByCityOrZipRespond = GetWeatherByCityOrZipRespond()
@@ -117,7 +129,7 @@ class mockWeatherRepository(var context: Context, var dao: WeatherDao) : IWeathe
     override suspend fun getWeatherByZip(zip: String): Flow<Result<GetWeatherByCityOrZipRespond>>? {
 
         updateWeatherByCity("city")
-        var londonWeatherListener =  dao.getByCityNameFlow("London")
+        var londonWeatherListener = dao.getByCityNameFlow("London")
 
         return londonWeatherListener?.map {
             var getWeatherByCityOrZipRespond = GetWeatherByCityOrZipRespond()
@@ -128,17 +140,19 @@ class mockWeatherRepository(var context: Context, var dao: WeatherDao) : IWeathe
     }
 
     override suspend fun updateWeatherByCity(city: String) {
-        var londonWeatherListener =  dao.getByCityNameFlow("London")
-        var weatherByCity:WeatherByCity?
-        if(londonWeatherListener !=null){
-             weatherByCity = londonWeatherListener.firstOrNull()
-            if (weatherByCity?.main?.temp  == "1000") {
-                weatherByCity.main.temp   = "1001"
+        Log.d("updateWeatherByCity","enter function")
+        var londonWeatherListener = dao.getByCityName("London")
+        var weatherByCity: WeatherByCity?
+        if (londonWeatherListener.size>0) {
+            weatherByCity = londonWeatherListener.firstOrNull()
+            if (weatherByCity?.main?.temp == "1000") {
+                weatherByCity.main.temp = "1001"
             } else {
-                weatherByCity?.main?.temp  = "1000"
+                weatherByCity?.main?.temp = "1000"
             }
-        }else{
+        } else {
 
+            Log.d("updateWeatherByCity","add fake item to db")
             val _is = context.getResources().openRawResource(R.raw.testweatherjson)
             val writer = StringWriter()
             val buffer = CharArray(1024)
@@ -153,21 +167,67 @@ class mockWeatherRepository(var context: Context, var dao: WeatherDao) : IWeathe
             }
 
             val jsonString: String = writer.toString()
-             weatherByCity = Gson().fromJson(jsonString, WeatherByCity::class.java)
+            weatherByCity = Gson().fromJson(jsonString, WeatherByCity::class.java)
         }
         if (weatherByCity != null) {
             dao.insert(weatherByCity)
         }
     }
 
+
+    override suspend fun updateWeatherByZipCode(zip: String) {
+        Log.d("updateWeatherByZipCode","enter function")
+        var londonWeatherListener = dao.getByCityName("London")
+        var weatherByCity: WeatherByCity?
+        if (londonWeatherListener .size>0) {
+            weatherByCity = londonWeatherListener.firstOrNull()
+            if (weatherByCity?.main?.temp == "1000") {
+                weatherByCity.main.temp = "1001"
+            } else {
+                weatherByCity?.main?.temp = "1000"
+            }
+        } else {
+
+            Log.d("updateWeatherByZipCode","add fake item to db")
+            val _is = context.getResources().openRawResource(R.raw.testweatherjson)
+            val writer = StringWriter()
+            val buffer = CharArray(1024)
+            try {
+                val reader = BufferedReader(InputStreamReader(_is, "UTF-8"))
+                var n: Int = 0
+                while (reader.read(buffer).also({ n = it }) != -1) {
+                    writer.write(buffer, 0, n)
+                }
+            } finally {
+                _is.close()
+            }
+
+            val jsonString: String = writer.toString()
+            weatherByCity = Gson().fromJson(jsonString, WeatherByCity::class.java)
+        }
+        if (weatherByCity != null) {
+            dao.insert(weatherByCity)
+        }
+    }
+
+
     override suspend fun updateLastTouchByCity(city: String) {
         updateWeatherByCity("city")
-        var w =  dao.getByCityName("London")
+        var wAny = dao.getByCityName("London")
+        if (wAny.size == 0) return
+        var w = wAny.get(0)
+        Log.d("updateLastTouchByCity", " w._id = " + w._id)
+
         dao.updateTimeByID(w._id, Calendar.getInstance().getTime().toString())
     }
 
     override suspend fun updateLastTouchByZipCode(zip: String) {
-        var w =  dao.getByZipCode(zip)
+        updateWeatherByCity("city")
+        var wAny = dao.getByCityName("London")
+        if (wAny.size == 0) return
+        var w = wAny.get(0)
+        Log.d("updateLastTouchByZip", " w._id = " + w._id)
+
         dao.updateTimeByID(w._id, Calendar.getInstance().getTime().toString())
     }
 }

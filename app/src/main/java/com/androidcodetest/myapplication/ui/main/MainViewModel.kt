@@ -3,20 +3,19 @@ package com.androidcodetest.myapplication.ui.main
 import android.app.Application
 import androidx.lifecycle.*
 import com.androidcodetest.myapplication.data.WeatherByCity
-import com.androidcodetest.myapplication.repository.Weatherepository
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import com.androidcodetest.myapplication.repository.IWeatherRepository
+import com.androidcodetest.myapplication.repository.WeatherRepository
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
-class MainViewModel(application: Application,var weatherepository: Weatherepository) : AndroidViewModel(application) {
-   var searchZipOrCity = MutableLiveData<String>()
+public class MainViewModel( application: Application, val weatherepository: IWeatherRepository) : AndroidViewModel(application) {
+
+   var searchZipOrCity = MutableLiveData<String>("london")
    var weathers: LiveData<List<WeatherByCity>?>? = null
    val repeatFun = repeatFun()
 
    init {
-      viewModelScope.launch {
+      viewModelScope.launch (Dispatchers.IO) {
          // Do things!
          weathers =
             weatherepository.getWeathersOrderInLastTouch()
@@ -39,13 +38,13 @@ class MainViewModel(application: Application,var weatherepository: Weathereposit
    }
 
    fun update() {
-      viewModelScope.launch {
+      viewModelScope.launch(Dispatchers.IO)  {
          weathers?.value?.forEach {weatherepository.updateWeatherByCity(it.name)  }
       }
    }
 
    fun getWeatherByCityByUser(){
-      viewModelScope.launch {
+      viewModelScope.launch(Dispatchers.IO)  {
          searchZipOrCity.value?.let { weatherepository.updateWeatherByCity(it)
             weatherepository.updateLastTouchByCity(it)
          }
@@ -53,7 +52,7 @@ class MainViewModel(application: Application,var weatherepository: Weathereposit
       }
    }
    fun getWeatherByZipCodeByUser(){
-      viewModelScope.launch {
+      viewModelScope.launch (Dispatchers.IO) {
          searchZipOrCity.value?.let { weatherepository.updateWeatherByZipCode(it)
 
             weatherepository.updateLastTouchByZipCode(it)

@@ -2,16 +2,16 @@ package com.androidcodetest.myapplication.di
 
 import android.app.Application
 import android.content.Context
-import android.provider.Settings.Global.getString
 import android.util.Config.DEBUG
 import androidx.room.Room
 import com.androidcodetest.myapplication.R
 import com.androidcodetest.myapplication.datasource.localdatasource.WeatherDatabase
 import com.androidcodetest.myapplication.datasource.localdatasource.database.WeatherDao
 import com.androidcodetest.myapplication.datasource.remotedatasource.WeatherRemoteDataSourceApi
-import com.androidcodetest.myapplication.repository.Weatherepository
+import com.androidcodetest.myapplication.repository.IWeatherRepository
+import com.androidcodetest.myapplication.repository.WeatherRepository
+import com.androidcodetest.myapplication.repository.mockWeatherRepository
 import com.androidcodetest.myapplication.ui.main.MainViewModel
-import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -98,10 +98,11 @@ val networkModule = module {
 }
 
 val repositoryModule = module {
-    fun provideCountryRepository(api: WeatherRemoteDataSourceApi, context: Context, dao : WeatherDao): Weatherepository {
-        return Weatherepository(api, context, dao)
+    fun provideWeatherRepository(api: WeatherRemoteDataSourceApi, context: Context, dao : WeatherDao): IWeatherRepository {
+        return WeatherRepository(api, context, dao)
     }
-    single { provideCountryRepository(get(), androidContext(), get()) }
+    //single<IWeatherRepository> { mockWeatherRepository(get(),get()) }
+  single<IWeatherRepository> { provideWeatherRepository(get(), androidContext(), get()) }
 }
 
 

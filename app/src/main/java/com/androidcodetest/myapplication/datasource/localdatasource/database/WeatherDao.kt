@@ -1,5 +1,6 @@
 package com.androidcodetest.myapplication.datasource.localdatasource.database
 
+import android.database.Cursor
 import androidx.room.*
 import com.androidcodetest.myapplication.data.WeatherByCity
 import kotlinx.coroutines.flow.Flow
@@ -19,14 +20,14 @@ interface WeatherDao {
 
 
     @Query("SELECT * FROM weather where name = :city")
-    fun getByCityName(city:String):  WeatherByCity
+    fun getByCityName(city:String): Array<WeatherByCity>
 
     @Query("SELECT * FROM weather where zip = :zip")
     fun getByZipCodeFlow(zip:String):Flow<  WeatherByCity>?
 
 
     @Query("SELECT * FROM weather where zip = :zip")
-    fun getByZipCode(zip:String):  WeatherByCity
+    fun getByZipCode(zip:String):  Array<WeatherByCity>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
