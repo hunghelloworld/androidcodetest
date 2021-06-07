@@ -2,16 +2,21 @@ package com.androidcodetest.myapplication.data
 
 import android.os.Parcelable
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
+import java.sql.Time
 
 @Entity(tableName = "Weather")
 @Parcelize
 data class WeatherByCity (
-    var coord: Coord, var weather: Weather, var base: String,
-    var main: Main, var wind: Wind, var clouds: Clouds,
-    var rain: Rain, var snow: Snow, var dt: String,
-    var sys: Sys, var timeZone: String, var id: String,
-    var name: String, var cod: String
+        @PrimaryKey(autoGenerate = true)
+        var _id:Int,
+        var zip:String, var lastSearch: Time,
+        var coord: Coord, var weather: Weather, var base: String,
+        var main: Main, var wind: Wind, var clouds: Clouds,
+        var rain: Rain, var snow: Snow, var dt: String,
+        var sys: Sys, var timeZone: String, var id: String,
+        var name: String, var cod: String
 ): Parcelable
 
 

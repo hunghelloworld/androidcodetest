@@ -2,6 +2,7 @@ package com.androidcodetest.myapplication.di
 
 import android.app.Application
 import android.content.Context
+import android.provider.Settings.Global.getString
 import android.util.Config.DEBUG
 import androidx.room.Room
 import com.androidcodetest.myapplication.R
@@ -10,6 +11,8 @@ import com.androidcodetest.myapplication.datasource.localdatasource.database.Wea
 import com.androidcodetest.myapplication.datasource.remotedatasource.WeatherRemoteDataSourceApi
 import com.androidcodetest.myapplication.repository.Weatherepository
 import com.androidcodetest.myapplication.ui.main.MainViewModel
+import okhttp3.HttpUrl
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
@@ -20,6 +23,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+
 
 val apiModule = module {
 
@@ -60,6 +64,19 @@ val networkModule = module {
             }
             okHttpClientBuilder.addInterceptor(httpLoggingInterceptor)
         }
+
+        var apiInterceptor=  Interceptor(){
+            val original = it.request()
+            val originalUrl = original.url
+            val url = originalUrl.newBuilder()
+                    .addQueryParameter("appid", "123455678990")
+                    .build()
+            val requestBuilder = original.newBuilder().url(url)
+            val request= requestBuilder.build()
+            return@Interceptor it.proceed(request)
+        }
+
+        okHttpClientBuilder.addInterceptor(apiInterceptor)
         okHttpClientBuilder.build()
         return okHttpClientBuilder.build()
     }
@@ -92,7 +109,7 @@ val viewModelModule = module {
 
     // Specific viewModel pattern to tell Koin how to build CountriesViewModel
     viewModel {
-        MainViewModel(get())
+        MainViewModel(get(),get())
     }
 
 }

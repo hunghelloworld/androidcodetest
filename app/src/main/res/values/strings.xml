@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MyAndroidCodeTest</string>
     <string name="BASE_URL">api.openweathermap.org</string>
+    <string name="your_api_key_id" translatable="false">YOUR_API_KEY</string>
 </resources>
