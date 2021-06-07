@@ -1,8 +1,6 @@
 package com.androidcodetest.myapplication.di
 
 import android.app.Application
-import android.content.Context
-import android.util.Config.DEBUG
 import androidx.room.Room
 import com.androidcodetest.myapplication.R
 import com.androidcodetest.myapplication.datasource.localdatasource.WeatherDatabase
@@ -10,7 +8,6 @@ import com.androidcodetest.myapplication.datasource.localdatasource.database.Wea
 import com.androidcodetest.myapplication.datasource.remotedatasource.WeatherRemoteDataSourceApi
 import com.androidcodetest.myapplication.repository.IWeatherRepository
 import com.androidcodetest.myapplication.repository.WeatherRepository
-import com.androidcodetest.myapplication.repository.mockWeatherRepository
 import com.androidcodetest.myapplication.ui.main.MainViewModel
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -58,18 +55,16 @@ val networkModule = module {
         val okHttpClientBuilder = OkHttpClient.Builder()
             .connectTimeout(connectTimeout, TimeUnit.SECONDS)
             .readTimeout(readTimeout, TimeUnit.SECONDS)
-        if (DEBUG) {
             val httpLoggingInterceptor = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             }
             okHttpClientBuilder.addInterceptor(httpLoggingInterceptor)
-        }
 
         var apiInterceptor=  Interceptor(){
             val original = it.request()
             val originalUrl = original.url
             val url = originalUrl.newBuilder()
-                    .addQueryParameter("appid", "123455678990")
+                    .addQueryParameter("appid", "1233344555666777")
                     .build()
             val requestBuilder = original.newBuilder().url(url)
             val request= requestBuilder.build()
@@ -98,11 +93,14 @@ val networkModule = module {
 }
 
 val repositoryModule = module {
-    fun provideWeatherRepository(api: WeatherRemoteDataSourceApi, context: Context, dao : WeatherDao): IWeatherRepository {
-        return WeatherRepository(api, context, dao)
+    fun provideWeatherRepository(
+        api: WeatherRemoteDataSourceApi,
+        dao: WeatherDao
+    ): IWeatherRepository {
+        return WeatherRepository(api, dao)
     }
     //single<IWeatherRepository> { mockWeatherRepository(get(),get()) }
-  single<IWeatherRepository> { provideWeatherRepository(get(), androidContext(), get()) }
+  single<IWeatherRepository> { provideWeatherRepository(get(), get()) }
 }
 
 

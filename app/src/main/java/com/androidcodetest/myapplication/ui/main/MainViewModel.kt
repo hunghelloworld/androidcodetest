@@ -10,9 +10,14 @@ import kotlinx.coroutines.flow.map
 
 public class MainViewModel( application: Application, val weatherepository: IWeatherRepository) : AndroidViewModel(application) {
 
-   var searchZipOrCity = MutableLiveData<String>("london")
+   var searchZipOrCity = MutableLiveData<String>("London")
    var weathers: LiveData<List<WeatherByCity>?>? = null
    val repeatFun = repeatFun()
+
+
+   var searchresult = MutableLiveData<String>("London")
+   var searchresult2 = MutableLiveData<String>("London")
+   var searchresult3= MutableLiveData<String>("London")
 
    init {
       viewModelScope.launch (Dispatchers.IO) {
@@ -26,6 +31,8 @@ public class MainViewModel( application: Application, val weatherepository: IWea
 //start the loop
 
       repeatFun.start()
+
+
    }
 
    fun repeatFun(): Job {

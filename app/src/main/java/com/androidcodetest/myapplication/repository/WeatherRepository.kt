@@ -29,7 +29,6 @@ interface IWeatherRepository {
 
 class WeatherRepository(
     var api: WeatherRemoteDataSourceApi,
-    var context: Context,
     var dao: WeatherDao
 ) : IWeatherRepository {
     override suspend fun getWeathersOrderInLastTouch(): Flow<Result<GetWeathersOrderInRecentRespond>>? {
@@ -68,13 +67,19 @@ class WeatherRepository(
     }
 
     override suspend fun updateWeatherByCity(city: String) {
-        var weatherByCity = api.getWeatherByCity(city).body()
-        if (weatherByCity != null) {
-            dao.insert(weatherByCity)
-        }
+        var weatherByCity = api.getWeatherByCity(city)
+        Log.d("updateWeatherByCity", " after api ")
+        dao.insert(weatherByCity)
+
+
+        var wAny = dao.getByCityName(city)
+        if (wAny.size == 0) return
+        var w = wAny.get(0)
+        Log.d("updateLastTouchByCity", " w._id = " + w._id)
     }
 
     override suspend fun updateLastTouchByCity(city: String) {
+        Log.d("updateLastTouchByCity", " enter ")
         var wAny = dao.getByCityName(city)
         if (wAny.size == 0) return
         var w = wAny.get(0)
@@ -90,8 +95,9 @@ class WeatherRepository(
         dao.updateTimeByID(w._id, Calendar.getInstance().getTime().toString())
     }
 
-    override suspend fun updateWeatherByZipCode(city: String) {
-        var weatherByCity = api.getWeatherByCity(city).body()
+    override suspend fun updateWeatherByZipCode(zipCode: String) {
+        var weatherByCity = api.getWeatherByZipCode(zipCode)
+        Log.d("updateWeatherByZip", " after api ")
         if (weatherByCity != null) {
             dao.insert(weatherByCity)
         }

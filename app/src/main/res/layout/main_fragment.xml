@@ -17,6 +17,34 @@
         tools:context=".ui.main.MainFragment">
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@={viewmodel.searchresult}" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@={viewmodel.searchresult2}"/>
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@={viewmodel.searchresult3}"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -35,7 +63,7 @@
                 android:layout_weight="4"
                 android:ems="10"
                 android:hint="example: London"
-                android:text="@{viewmodel.searchZipOrCity}"
+                android:text="@={viewmodel.searchZipOrCity}"
                 android:inputType="textPersonName" />
 
             <Button
